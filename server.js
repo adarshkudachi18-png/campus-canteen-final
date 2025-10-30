@@ -1128,7 +1128,7 @@ initializeDataFiles();
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`\n🚀 Server running on http://localhost:${PORT}`);
+  console.log(`\n🚀 Server running on http://localhost:${PORT}/index.html`);
   console.log(`📁 Data directory: ${DATA_DIR}`);
   console.log(`☁️  AWS DynamoDB configured`);
   console.log(`💳 Razorpay configured (Test Mode)`);
