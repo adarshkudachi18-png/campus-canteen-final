@@ -1,0 +1,77 @@
+[
+  {
+    "id": "77ef8b7e-1c21-4f41-b8d3-3e68feac133e",
+    "name": "Adarsh ",
+    "email": "bdeepu2435@gmail.com",
+    "phone": "9008817244",
+    "studentId": "2kd23ec003",
+    "department": "aids",
+    "year": "3",
+    "password": "$2b$10$Qmt4RMYUuU9n9H9kRwgav.4aWmrCTIkZqBIUb7JzZ0IQs.U/chtjC",
+    "adminId": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "collegeName": "klecet,chikodi",
+    "canteenName": "klecet canteen",
+    "createdAt": "2025-10-30T13:50:26.899Z",
+    "preferences": {
+      "notifications": true,
+      "emailUpdates": true
+    }
+  },
+  {
+    "id": "4831d600-f91f-40c4-8ebe-637434b08811",
+    "name": "manoj ",
+    "email": "mpsagar173@gmail.com",
+    "phone": "7022320781",
+    "studentId": "2kd23ad019",
+    "department": "aids",
+    "year": "2",
+    "password": "$2b$10$wqGaaHtDkbMcJcZ9dheIQeSJLJFxV5FzZEHgz4krOhjC7NJ5FC2w6",
+    "adminId": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "collegeName": "klecet,chikodi",
+    "canteenName": "klecet canteen",
+    "createdAt": "2025-10-30T14:08:24.583Z",
+    "preferences": {
+      "vegOnly": false,
+      "notifications": true,
+      "emailUpdates": true
+    }
+  },
+  {
+    "id": "1f2e8a25-a97f-4750-9c65-c190c909a82a",
+    "name": "aditya warji",
+    "email": "adtyawarji@gmail.com",
+    "phone": "7204030936",
+    "studentId": "2kd23ad006",
+    "department": "aids",
+    "year": "3",
+    "password": "$2b$10$ZkwS8kDRK8dyeNlJF.Zxmuu00p9W614cENG5KAsOWJ/20.1QJJwPC",
+    "adminId": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "collegeName": "klecet,chikodi",
+    "canteenName": "klecet canteen",
+    "createdAt": "2025-10-30T14:09:31.803Z",
+    "preferences": {
+      "vegOnly": false,
+      "notifications": true,
+      "emailUpdates": true
+    }
+  },
+  {
+    "id": "eb7b99d9-53a3-4326-ac6d-68c6aeb49565",
+    "name": "abhikiledar",
+    "email": "abhikiledar123@gmail.com",
+    "phone": "7829606988",
+    "studentId": "2kd23ec013",
+    "department": "ece",
+    "year": "3",
+    "password": "$2b$10$OHWnlaSDHl0FIzsVJJIeL.GRZaWp/JZouN7aXr4TD9REAOHxUeyg6",
+    "adminId": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "collegeName": "klecet,chikodi",
+    "canteenName": "klecet canteen",
+    "createdAt": "2025-10-30T14:10:27.727Z",
+    "preferences": {
+      "vegOnly": false,
+      "notifications": true,
+      "emailUpdates": true
+    }
+  }
+]

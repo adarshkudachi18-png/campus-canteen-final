@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Orders - Campus Canteen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-sidebar: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-sidebar: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .top-bar {
+            background: var(--bg-primary);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .order-card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.3s;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .order-card.pending { border-left-color: #f59e0b; }
+        .order-card.confirmed { border-left-color: #3b82f6; }
+        .order-card.preparing { border-left-color: #ec4899; }
+        .order-card.ready { border-left-color: #10b981; }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .order-id {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #dbeafe; color: #1e40af; }
+        .status-preparing { background: #fce7f3; color: #9f1239; }
+        .status-ready { background: #d1fae5; color: #065f46; }
+
+        .order-info {
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .otp-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .otp-display .otp-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .otp-display .otp-code {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 8px;
+        }
+
+        .order-items {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .order-items h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .item-list {
+            list-style: none;
+        }
+
+        .item-list li {
+            padding: 5px 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-confirm {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-preparing {
+            background: #fce7f3;
+            color: #9f1239;
+        }
+
+        .btn-ready {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .btn-complete {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .orders-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <h1>🎓 Admin Panel</h1>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html" class="nav-link"><span>📊</span> Dashboard</a></li>
+                <li><a href="liveorders.html" class="nav-link active"><span>🔴</span> Live Orders</a></li>
+                <li><a href="orderhistory.html" class="nav-link"><span>📜</span> Order History</a></li>
+                <li><a href="admin-menu.html" class="nav-link"><span>🍽️</span> Menu</a></li>
+                <li><a href="offline-orders.html" class="nav-link"><span>💵</span> Offline Orders</a></li>
+                <li><a href="admin-students.html" class="nav-link"><span>👥</span> Students</a></li>
+                <li><a href="analysis.html" class="nav-link"><span>📈</span> Analytics</a></li>
+                <li><a href="admin-profile.html" class="nav-link"><span>⚙️</span> Settings</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>🔴 Live Orders</h2>
+                <div style="color: var(--text-secondary);">Auto-refreshing every 3s</div>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterOrders('all')">All</button>
+                <button class="filter-btn" onclick="filterOrders('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterOrders('confirmed')">Confirmed</button>
+                <button class="filter-btn" onclick="filterOrders('preparing')">Preparing</button>
+                <button class="filter-btn" onclick="filterOrders('ready')">Ready</button>
+            </div>
+
+            <div class="orders-grid" id="ordersGrid">
+                <p style="text-align: center; padding: 40px;">Loading orders...</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentAdmin = null;
+        let allOrders = [];
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            currentAdmin = JSON.parse(localStorage.getItem('adminUser'));
+            loadOrders();
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // Auto-refresh every 3 seconds
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadOrders();
+                }
+            }, 3000);
+        });
+
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_URL}/orders?adminId=${currentAdmin.id}`);
+                allOrders = await response.json();
+                displayOrders();
+            } catch (error) {
+                showToast('Error loading orders', 'error');
+            }
+        }
+
+        function displayOrders() {
+            const grid = document.getElementById('ordersGrid');
+            
+            const activeStatuses = ['pending', 'confirmed', 'preparing', 'ready'];
+            let orders = allOrders.filter(o => activeStatuses.includes(o.status));
+            
+            if (currentFilter !== 'all') {
+                orders = orders.filter(o => o.status === currentFilter);
+            }
+            
+            if (orders.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 40px;">No active orders</p>';
+                return;
+            }
+            
+            grid.innerHTML = orders.map(order => `
+                <div class="order-card ${order.status}">
+                    <div class="order-header">
+                        <div class="order-id">${order.orderId}</div>
+                        <span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span>
+                    </div>
+                    
+                    <div class="order-info">
+                        <div class="info-row">
+                            <span class="info-label">Customer:</span>
+                            <span class="info-value">${order.userName}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phone:</span>
+                            <span class="info-value">${order.userPhone}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Order Type:</span>
+                            <span class="info-value">${order.orderType === 'preorder' ? '⏰ Pre-order' : '⚡ Instant'}</span>
+                        </div>
+                        ${order.scheduledTime ? `
+                        <div class="info-row">
+                            <span class="info-label">Scheduled:</span>
+                            <span class="info-value">${new Date(order.scheduledTime).toLocaleString()}</span>
+                        </div>
+                        ` : ''}
+                        <div class="info-row">
+                            <span class="info-label">Time:</span>
+                            <span class="info-value">${new Date(order.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total:</span>
+                            <span class="info-value" style="color: #10b981; font-size: 18px;">₹${order.totalAmount}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="otp-display">
+                        <div class="otp-label">Collection OTP</div>
+                        <div class="otp-code">${order.otp}</div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <h4>📦 Items (${order.items.length})</h4>
+                        <ul class="item-list">
+                            ${order.items.map(item => `
+                                <li>${item.quantity}x ${item.name} - ₹${item.price * item.quantity}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="order-actions">
+                        ${order.status === 'pending' ? `
+                            <button class="action-btn btn-confirm" onclick="updateStatus('${order.id}', 'confirmed')">
+                                ✓ Accept Order
+                            </button>
+                            <button class="action-btn btn-cancel" onclick="updateStatus('${order.id}', 'cancelled')">
+                                ✗ Cancel
+                            </button>
+                        ` : ''}
+                        ${order.status === 'confirmed' ? `
+                            <button class="action-btn btn-preparing" onclick="updateStatus('${order.id}', 'preparing')">
+                                🔥 Mark Preparing
+                            </button>
+                        ` : ''}
+                        ${order.status === 'preparing' ? `
+                            <button class="action-btn btn-ready" onclick="updateStatus('${order.id}', 'ready')">
+                                ✓ Mark Ready
+                            </button>
+                        ` : ''}
+                        ${order.status === 'ready' ? `
+                            <button class="action-btn btn-complete" onclick="updateStatus('${order.id}', 'delivered')">
+                                ✓ Complete Order
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            try {
+                const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Order ${newStatus === 'cancelled' ? 'cancelled' : 'updated'} successfully`, 'success');
+                    loadOrders();
+                } else {
+                    showToast('Failed to update order', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        function filterOrders(status) {
+            currentFilter = status;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayOrders();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History - Campus Canteen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-sidebar: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-sidebar: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .top-bar {
+            background: var(--bg-primary);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .filters {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .table-container {
+            background: var(--bg-primary);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background: var(--bg-secondary);
+            padding: 15px;
+            text-align: left;
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            background: #dbeafe;
+            color: #1e40af;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: var(--text-primary);
+            margin-bottom: 25px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .items-list {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .items-list h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .items-list ul {
+            list-style: none;
+        }
+
+        .items-list li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            table { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <h1>🎓 Admin Panel</h1>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html" class="nav-link"><span>📊</span> Dashboard</a></li>
+                <li><a href="liveorders.html" class="nav-link"><span>🔴</span> Live Orders</a></li>
+                <li><a href="orderhistory.html" class="nav-link active"><span>📜</span> Order History</a></li>
+                <li><a href="admin-menu.html" class="nav-link"><span>🍽️</span> Menu</a></li>
+                <li><a href="offline-orders.html" class="nav-link"><span>💵</span> Offline Orders</a></li>
+                <li><a href="admin-students.html" class="nav-link"><span>👥</span> Students</a></li>
+                <li><a href="analysis.html" class="nav-link"><span>📈</span> Analytics</a></li>
+                <li><a href="admin-profile.html" class="nav-link"><span>⚙️</span> Settings</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>📜 Order History</h2>
+                <button class="btn-primary" onclick="exportToCSV()">📥 Export to CSV</button>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>From Date</label>
+                    <input type="date" id="fromDate">
+                </div>
+                <div class="filter-group">
+                    <label>To Date</label>
+                    <input type="date" id="toDate">
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="all">All</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" id="searchInput" placeholder="Order ID or Customer" oninput="applyFilters()">
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px;">Loading orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <h2>Order Details</h2>
+            <div id="orderDetails"></div>
+            <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeDetailsModal()">Close</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentAdmin = null;
+        let allOrders = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            currentAdmin = JSON.parse(localStorage.getItem('adminUser'));
+            
+            // Set default dates
+            const today = new Date();
+            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+            document.getElementById('toDate').valueAsDate = today;
+            document.getElementById('fromDate').valueAsDate = lastMonth;
+
+            loadOrders();
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // Auto-refresh every 3 seconds
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadOrders();
+                }
+            }, 3000);
+        });
+
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_URL}/orders?adminId=${currentAdmin.id}`);
+                allOrders = await response.json();
+                applyFilters();
+            } catch (error) {
+                showToast('Error loading orders', 'error');
+            }
+        }
+
+        function applyFilters() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allOrders.filter(o => ['delivered', 'cancelled'].includes(o.status));
+
+            if (fromDate) {
+                filtered = filtered.filter(o => new Date(o.createdAt) >= new Date(fromDate));
+            }
+
+            if (toDate) {
+                const endDate = new Date(toDate);
+                endDate.setHours(23, 59, 59, 999);
+                filtered = filtered.filter(o => new Date(o.createdAt) <= endDate);
+            }
+
+            if (status !== 'all') {
+                filtered = filtered.filter(o => o.status === status);
+            }
+
+            if (search) {
+                filtered = filtered.filter(o => 
+                    o.orderId.toLowerCase().includes(search) ||
+                    o.userName.toLowerCase().includes(search)
+                );
+            }
+
+            displayOrders(filtered);
+        }
+
+        function displayOrders(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No orders found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td><strong>${order.orderId}</strong></td>
+                    <td>${order.userName}</td>
+                    <td>${order.items.length} items</td>
+                    <td>₹${order.totalAmount}</td>
+                    <td><span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span></td>
+                    <td>${new Date(order.createdAt).toLocaleDateString()} ${new Date(order.createdAt).toLocaleTimeString()}</td>
+                    <td><button class="action-btn" onclick='viewDetails(${JSON.stringify(order).replace(/'/g, "&apos;")})'>View</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function viewDetails(order) {
+            const detailsDiv = document.getElementById('orderDetails');
+            
+            detailsDiv.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">${order.orderId}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Customer:</span>
+                    <span class="detail-value">${order.userName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone:</span>
+                    <span class="detail-value">${order.userPhone}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">OTP:</span>
+                    <span class="detail-value">${order.otp}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Order Type:</span>
+                    <span class="detail-value">${order.orderType === 'preorder' ? 'Pre-order' : 'Instant'}</span>
+                </div>
+                ${order.scheduledTime ? `
+                <div class="detail-row">
+                    <span class="detail-label">Scheduled Time:</span>
+                    <span class="detail-value">${new Date(order.scheduledTime).toLocaleString()}</span>
+                </div>
+                ` : ''}
+                <div class="detail-row">
+                    <span class="detail-label">Payment Method:</span>
+                    <span class="detail-value">${order.paymentMethod}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Amount:</span>
+                    <span class="detail-value" style="color: #10b981; font-size: 18px;">₹${order.totalAmount}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value"><span class="status-badge status-${order.status}">${order.status.toUpperCase()}</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date:</span>
+                    <span class="detail-value">${new Date(order.createdAt).toLocaleString()}</span>
+                </div>
+                <div class="items-list">
+                    <h4>Items Ordered:</h4>
+                    <ul>
+                        ${order.items.map(item => `
+                            <li>${item.quantity}x ${item.name} - ₹${item.price} each = ₹${item.price * item.quantity}</li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        function exportToCSV() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = allOrders.filter(o => ['delivered', 'cancelled'].includes(o.status));
+
+            if (fromDate) {
+                filtered = filtered.filter(o => new Date(o.createdAt) >= new Date(fromDate));
+            }
+
+            if (toDate) {
+                const endDate = new Date(toDate);
+                endDate.setHours(23, 59, 59, 999);
+                filtered = filtered.filter(o => new Date(o.createdAt) <= endDate);
+            }
+
+            if (status !== 'all') {
+                filtered = filtered.filter(o => o.status === status);
+            }
+
+            if (filtered.length === 0) {
+                showToast('No orders to export', 'error');
+                return;
+            }
+
+            const csvContent = [
+                ['Order ID', 'Customer', 'Phone', 'Items', 'Amount', 'Payment', 'Status', 'Date'],
+                ...filtered.map(order => [
+                    order.orderId,
+                    order.userName,
+                    order.userPhone,
+                    order.items.map(i => `${i.quantity}x ${i.name}`).join('; '),
+                    order.totalAmount,
+                    order.paymentMethod,
+                    order.status,
+                    new Date(order.createdAt).toLocaleString()
+                ])
+            ].map(row => row.join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `order-history-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showToast('Orders exported successfully', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

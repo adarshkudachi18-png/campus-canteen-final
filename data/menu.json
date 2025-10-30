@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ee8036ea-303b-4481-97f9-ec7c373f2237",
+    "name": "burger",
+    "category": "Breakfast",
+    "price": 20,
+    "description": "www",
+    "image": "https://images.unsplash.com/photo-1589301773859-bb024d3ad558?w=400",
+    "isVeg": true,
+    "adminId": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "available": true,
+    "createdAt": "2025-10-30T14:00:50.275Z"
+  },
+  {
+    "id": "e7489fec-0cfe-4b5c-8fc0-b61e59d54943",
+    "name": "dosa",
+    "category": "Breakfast",
+    "price": 1,
+    "description": "tasty ",
+    "image": "https://images.unsplash.com/photo-1589301773859-bb024d3ad558?w=400",
+    "isVeg": true,
+    "adminId": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "available": true,
+    "createdAt": "2025-10-30T14:11:27.923Z"
+  }
+]

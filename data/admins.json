@@ -1,0 +1,15 @@
+[
+  {
+    "id": "7db429dd-1b8f-480b-8cda-bb557b186e4e",
+    "name": "Adarsh ",
+    "email": "00adarsh.kudachi00@gmail.com",
+    "phone": "7829606988",
+    "password": "$2b$10$rHU6ig/Y8.WxJ5dOcgxw5Ouiys.mmimcjS63fP.L9EbPixnlEyDoW",
+    "collegeName": "klecet,chikodi",
+    "canteenName": "klecet canteen",
+    "address": "kle collage of engineering and technology chikodi",
+    "status": "active",
+    "createdAt": "2025-10-30T13:46:38.537Z",
+    "studentCount": 0
+  }
+]
