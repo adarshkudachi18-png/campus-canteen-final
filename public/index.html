@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Canteen - Home</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.light-mode {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #1e293b;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #f8fafc;
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .floating-circles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .circle:nth-child(1) { width: 300px; height: 300px; top: 10%; left: 10%; animation-delay: 0s; }
+    .circle:nth-child(2) { width: 200px; height: 200px; top: 60%; right: 10%; animation-delay: 3s; }
+    .circle:nth-child(3) { width: 150px; height: 150px; bottom: 20%; left: 50%; animation-delay: 6s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.1); }
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      margin-bottom: 40px;
+      color: rgba(255, 255, 255, 0.9);
+      max-width: 600px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 15px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: white;
+      color: #667eea;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+      background: white;
+      color: #667eea;
+      transform: translateY(-3px);
+    }
+
+    .features {
+      padding: 80px 20px;
+      background: white;
+    }
+
+    body.dark-mode .features {
+      background: #1e293b;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 60px;
+      color: #1e293b;
+    }
+
+    body.dark-mode .section-title {
+      color: #f8fafc;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 40px;
+      border-radius: 20px;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    body.dark-mode .feature-card {
+      background: #0f172a;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .feature-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #1e293b;
+    }
+
+    body.dark-mode .feature-title {
+      color: #f8fafc;
+    }
+
+    .feature-desc {
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    body.dark-mode .feature-desc {
+      color: #94a3b8;
+    }
+
+    .how-it-works {
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-top: 60px;
+    }
+
+    .step {
+      text-align: center;
+      padding: 30px;
+      position: relative;
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      background: white;
+      color: #667eea;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 auto 20px;
+    }
+
+    .step-title {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      padding: 40px 20px;
+      background: #1e293b;
+      color: white;
+      text-align: center;
+    }
+
+    body.dark-mode .footer {
+      background: #0f172a;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      width: 60px;
+      height: 30px;
+      border-radius: 15px;
+      cursor: pointer;
+      z-index: 1000;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    body.dark-mode .theme-toggle {
+      background: #334155;
+    }
+
+    .theme-slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      background: #667eea;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    body.dark-mode .theme-slider {
+      transform: translateX(30px);
+      background: #fbbf24;
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      .subtitle { font-size: 1.1rem; }
+      .button-group { flex-direction: column; }
+      .btn { width: 100%; max-width: 300px; }
+    }
+  </style>
+</head>
+<body class="light-mode">
+  
+  <!-- Theme Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <div class="theme-slider"></div>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <div class="floating-circles">
+      <div class="circle"></div>
+      <div class="circle"></div>
+      <div class="circle"></div>
+    </div>
+    
+    <div class="content">
+      <h1>🍽️ Campus Canteen</h1>
+      <p class="subtitle">
+        Order delicious food from your campus canteen with just a few clicks. 
+        Fast, convenient, and contactless!
+      </p>
+      <div class="button-group">
+        <a href="/login.html" class="btn btn-primary">🎓 Student Login</a>
+        <a href="/admin-login.html" class="btn btn-outline">👨‍💼 Admin Login</a>
+        <a href="/headquarters.html" class="btn btn-outline">🏢 Headquarters</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features">
+    <div class="container">
+      <h2 class="section-title">Why Choose Us?</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3 class="feature-title">Fast Ordering</h3>
+          <p class="feature-desc">Order your favorite food in seconds with our intuitive interface</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💳</div>
+          <h3 class="feature-title">Easy Payment</h3>
+          <p class="feature-desc">Pay via UPI or cash on delivery - your choice!</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3 class="feature-title">Real-time Tracking</h3>
+          <p class="feature-desc">Track your order status in real-time with OTP verification</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3 class="feature-title">Schedule Orders</h3>
+          <p class="feature-desc">Pre-order for later or get instant delivery</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3 class="feature-title">Notifications</h3>
+          <p class="feature-desc">Get notified about new items and order updates</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌙</div>
+          <h3 class="feature-title">Dark Mode</h3>
+          <p class="feature-desc">Easy on the eyes with beautiful dark mode</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="how-it-works">
+    <div class="container">
+      <h2 class="section-title" style="color: white;">How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Browse Menu</h3>
+          <p>Explore delicious items from your canteen</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Place Order</h3>
+          <p>Add to cart and choose payment method</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Pick Up</h3>
+          <p>Show OTP and collect your order at canteen</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>&copy; 2025 Campus Canteen. All rights reserved.</p>
+  <p style="margin-top: 10px; color: #94a3b8;">Made with ❤️ for Students</p>
+  
+  <div style="margin-top:20px;">
+    <a href="#" class="policy-link" data-policy="privacy">Privacy Policy</a> |
+    <a href="#" class="policy-link" data-policy="refund">Refund & Cancellation</a> |
+    <a href="#" class="policy-link" data-policy="terms">Terms & Conditions</a> |
+    <a href="#" class="policy-link" data-policy="contact">Contact Us</a>
+  </div>
+</div>
+
+<!-- ===== Policy Modal (Popup Card) ===== -->
+<div id="policyModal" style="
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.6);
+  backdrop-filter:blur(6px);
+  z-index:10000;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+">
+  <div style="
+    background:white;
+    color:#1e293b;
+    border-radius:20px;
+    padding:30px 40px;
+    max-width:650px;
+    width:100%;
+    box-shadow:0 20px 50px rgba(0,0,0,0.2);
+    transform:translateY(30px);
+    opacity:0;
+    transition:all 0.3s ease;
+  " id="policyCard">
+    <button id="closeModal" style="
+      float:right;
+      background:#667eea;
+      color:white;
+      border:none;
+      border-radius:8px;
+      padding:6px 12px;
+      cursor:pointer;
+      font-weight:600;
+    ">✕</button>
+    <div id="policyContent" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+  <script>
+    // Auto-refresh every 3 seconds
+    setInterval(() => {
+      console.log('Auto-refresh check:', new Date().toLocaleTimeString());
+    }, 3000);
+
+    // Theme Toggle
+    function toggleTheme() {
+      const body = document.body;
+      if (body.classList.contains('light-mode')) {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    // Load saved theme
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.body.className = savedTheme + '-mode';
+    });
+    // ======== POLICY MODAL CONTENT ========
+    const policies = {
+  privacy: `
+    <h2>Privacy Policy</h2>
+    <p>At <strong>Campus Canteen</strong>, we respect your privacy and are committed to safeguarding your personal information. This policy explains how we collect and use your data when you use our services.</p>
+    <p><strong>Information We Collect:</strong> We collect your name, email, phone number, and order details solely for processing orders and providing customer support.</p>
+    <p><strong>Data Security:</strong> Payments are securely processed through <strong>Razorpay</strong>. We do not store your card, UPI, or banking details on our servers.</p>
+    <p>For any privacy-related concerns, email us at <a href="mailto:00adarsh.kudachi00@gmail.com">00adarsh.kudachi00@gmail.com</a>.</p>
+  `,
+  refund: `
+    <h2>Refund & Cancellation Policy</h2>
+    <p>At <strong>Campus Canteen</strong>, we strive to deliver fresh and timely food. However, if an order needs to be cancelled or refunded, the following applies:</p>
+    <ul>
+      <li>Orders can be cancelled before confirmation by the canteen staff.</li>
+      <li>Refunds are applicable only if payment was made and the order was not prepared or delivered.</li>
+      <li>Refunds will be processed within 5–7 working days via the original payment method.</li>
+      <li>Once the food has been prepared or delivered, refunds are not applicable.</li>
+    </ul>
+    <p>Contact us at <a href="mailto:00adarsh.kudachi00@gmail.com">00adarsh.kudachi00@gmail.com</a> or call <a href="tel:7829606988">7829606988</a> for any issues.</p>
+  `,
+  terms: `
+    <h2>Terms & Conditions</h2>
+    <p>By using <strong>Campus Canteen</strong>, you agree to the following terms:</p>
+    <ul>
+      <li>All food orders are subject to availability and preparation time.</li>
+      <li>Prices are subject to change without prior notice.</li>
+      <li>Users must ensure accurate details while ordering; incorrect info may delay orders.</li>
+      <li>Razorpay is our official payment partner; their terms apply for payment processing.</li>
+      <li>We reserve the right to suspend or cancel any fraudulent or invalid orders.</li>
+    </ul>
+  `,
+  contact: `
+    <h2>Contact Us</h2>
+    <p>Have questions or need support? We’re here to help!</p>
+    <p><strong>Email:</strong> <a href="mailto:00adarsh.kudachi00@gmail.com">00adarsh.kudachi00@gmail.com</a></p>
+    <p><strong>Phone:</strong> <a href="tel:7829606988">7829606988</a></p>
+    <p><strong>Address:</strong> KLECET, Chikodi</p>
+    <p><strong>Website:</strong> <a href="https://campus-canteen-final.onrender.com" target="_blank">campus-canteen-final.onrender.com</a></p>
+  `
+};
+
+// Open Modal
+document.querySelectorAll('.policy-link').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const policyType = link.dataset.policy;
+    document.getElementById('policyContent').innerHTML = policies[policyType];
+    const modal = document.getElementById('policyModal');
+    const card = document.getElementById('policyCard');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }, 10);
+  });
+});
+
+// Close Modal
+document.getElementById('closeModal').addEventListener('click', () => {
+  const modal = document.getElementById('policyModal');
+  const card = document.getElementById('policyCard');
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(30px)';
+  setTimeout(() => modal.style.display = 'none', 300);
+});
+
+    // Animation on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animation = 'slideUp 0.6s ease-out';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.feature-card').forEach(card => {
+      observer.observe(card);
+    });
+  </script>
+
+</body>
+</html>
