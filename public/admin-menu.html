@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management - Campus Canteen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-sidebar: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-sidebar: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .top-bar {
+            background: var(--bg-primary);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .top-bar h2 {
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .menu-card-content {
+            padding: 20px;
+        }
+
+        .menu-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .menu-card h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .veg-badge {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .veg-badge.veg {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .veg-badge.non-veg {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .menu-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .menu-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .menu-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-edit {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-toggle {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-toggle.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: var(--text-primary);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 15px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <h1>🎓 Admin Panel</h1>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html" class="nav-link"><span>📊</span> Dashboard</a></li>
+                <li><a href="liveorders.html" class="nav-link"><span>🔴</span> Live Orders</a></li>
+                <li><a href="orderhistory.html" class="nav-link"><span>📜</span> Order History</a></li>
+                <li><a href="admin-menu.html" class="nav-link active"><span>🍽️</span> Menu</a></li>
+                <li><a href="offline-orders.html" class="nav-link"><span>💵</span> Offline Orders</a></li>
+                <li><a href="admin-students.html" class="nav-link"><span>👥</span> Students</a></li>
+                <li><a href="analysis.html" class="nav-link"><span>📈</span> Analytics</a></li>
+                <li><a href="admin-profile.html" class="nav-link"><span>⚙️</span> Settings</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>🍽️ Menu Management</h2>
+                <button class="btn-primary" onclick="openAddModal()">➕ Add New Item</button>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-category="all" onclick="filterCategory('all')">All</button>
+                <button class="filter-btn" data-category="Breakfast" onclick="filterCategory('Breakfast')">Breakfast</button>
+                <button class="filter-btn" data-category="Lunch" onclick="filterCategory('Lunch')">Lunch</button>
+                <button class="filter-btn" data-category="Snacks" onclick="filterCategory('Snacks')">Snacks</button>
+                <button class="filter-btn" data-category="Beverages" onclick="filterCategory('Beverages')">Beverages</button>
+                <button class="filter-btn" data-category="Desserts" onclick="filterCategory('Desserts')">Desserts</button>
+            </div>
+
+            <div class="menu-grid" id="menuGrid">
+                <p style="text-align: center; padding: 40px;">Loading menu...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Menu Item</h2>
+            <form id="itemForm">
+                <div class="form-group">
+                    <label>Item Name *</label>
+                    <input type="text" id="itemName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="itemCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="Breakfast">Breakfast</option>
+                        <option value="Lunch">Lunch</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Desserts">Desserts</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price (₹) *</label>
+                    <input type="number" id="itemPrice" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="itemDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image URL</label>
+                    <input type="url" id="itemImage" placeholder="https://example.com/image.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select id="itemType" required>
+                        <option value="true">🟢 Vegetarian</option>
+                        <option value="false">🔴 Non-Vegetarian</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeItemModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" style="flex: 1;">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Auto-detect environment (local vs Render)
+const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+// ✅ Use local backend for local dev, or Render backend for production
+const API_URL = isLocal
+  ? "http://localhost:3000/api"
+  : "https://campus-canteen-final.onrender.com/api";
+
+        let currentAdmin = null;
+        let allMenuItems = [];
+        let currentFilter = 'all';
+        let editingItemId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            currentAdmin = JSON.parse(localStorage.getItem('adminUser'));
+            loadMenu();
+
+            // Load theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // Auto-refresh
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadMenu();
+                }
+            }, 3000);
+
+            // Check if should open add modal
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'add') {
+                openAddModal();
+            }
+        });
+
+        async function loadMenu() {
+            try {
+                const response = await fetch(`${API_URL}/menu?adminId=${currentAdmin.id}`);
+                allMenuItems = await response.json();
+                displayMenu();
+            } catch (error) {
+                showToast('Error loading menu', 'error');
+            }
+        }
+
+        function displayMenu() {
+            const grid = document.getElementById('menuGrid');
+            
+            const filteredItems = currentFilter === 'all' 
+                ? allMenuItems 
+                : allMenuItems.filter(item => item.category === currentFilter);
+            
+            if (filteredItems.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 40px;">No items found</p>';
+                return;
+            }
+            
+            grid.innerHTML = filteredItems.map(item => `
+                <div class="menu-card">
+                    <img src="${item.image || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(item.name)}" alt="${item.name}">
+                    <div class="menu-card-content">
+                        <div class="menu-card-header">
+                            <h3>${item.name}</h3>
+                            <div class="veg-badge ${item.isVeg ? 'veg' : 'non-veg'}">
+                                ${item.isVeg ? '●' : '▲'}
+                            </div>
+                        </div>
+                        <p>${item.description || 'No description'}</p>
+                        <div class="menu-card-footer">
+                            <span class="price">₹${item.price}</span>
+                            <div class="menu-actions">
+                                <button class="action-btn btn-toggle ${item.available ? 'active' : ''}" 
+                                        onclick="toggleAvailability('${item.id}', ${item.available})">
+                                    ${item.available ? '✓' : '✗'}
+                                </button>
+                                <button class="action-btn btn-edit" onclick="editItem('${item.id}')">Edit</button>
+                                <button class="action-btn btn-delete" onclick="deleteItem('${item.id}', '${item.name}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(category) {
+            currentFilter = category;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            displayMenu();
+        }
+
+        function openAddModal() {
+            editingItemId = null;
+            document.getElementById('modalTitle').textContent = 'Add Menu Item';
+            document.getElementById('itemForm').reset();
+            document.getElementById('itemModal').classList.add('active');
+        }
+
+        function editItem(id) {
+            const item = allMenuItems.find(i => i.id === id);
+            if (!item) return;
+            
+            editingItemId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Menu Item';
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemCategory').value = item.category;
+            document.getElementById('itemPrice').value = item.price;
+            document.getElementById('itemDescription').value = item.description || '';
+            document.getElementById('itemImage').value = item.image || '';
+            document.getElementById('itemType').value = item.isVeg.toString();
+            
+            document.getElementById('itemModal').classList.add('active');
+        }
+
+        function closeItemModal() {
+            document.getElementById('itemModal').classList.remove('active');
+            document.getElementById('itemForm').reset();
+            editingItemId = null;
+        }
+
+        document.getElementById('itemForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const itemData = {
+                name: document.getElementById('itemName').value,
+                category: document.getElementById('itemCategory').value,
+                price: parseFloat(document.getElementById('itemPrice').value),
+                description: document.getElementById('itemDescription').value,
+                image: document.getElementById('itemImage').value,
+                isVeg: document.getElementById('itemType').value === 'true',
+                adminId: currentAdmin.id
+            };
+            
+            try {
+                const url = editingItemId 
+                    ? `${API_URL}/menu/${editingItemId}`
+                    : `${API_URL}/menu`;
+                
+                const method = editingItemId ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(editingItemId ? 'Item updated successfully' : 'Item added successfully', 'success');
+                    closeItemModal();
+                    loadMenu();
+                } else {
+                    showToast(data.error || 'Failed to save item', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        });
+
+        async function toggleAvailability(id, currentStatus) {
+            try {
+                const response = await fetch(`${API_URL}/menu/${id}/availability`, {
+                    method: 'PATCH'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Item ${!currentStatus ? 'marked available' : 'marked unavailable'}`, 'success');
+                    loadMenu();
+                }
+            } catch (error) {
+                showToast('Error updating availability', 'error');
+            }
+        }
+
+        async function deleteItem(id, name) {
+            if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/menu/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Item deleted successfully', 'success');
+                    loadMenu();
+                }
+            } catch (error) {
+                showToast('Error deleting item', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

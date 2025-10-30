@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Orders - Campus Canteen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-sidebar: #1e293b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-sidebar: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-sidebar);
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h1 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 40px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .top-bar {
+            background: var(--bg-primary);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .top-bar h2 {
+            color: var(--text-primary);
+        }
+
+        .cart-fixed {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .cart-fixed:hover {
+            transform: scale(1.05);
+        }
+
+        .cart-badge {
+            background: white;
+            color: #667eea;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .filters {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .menu-card {
+            background: var(--bg-primary);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .menu-card-content {
+            padding: 20px;
+        }
+
+        .menu-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .menu-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .qty-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0; }
+            .menu-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="sidebar">
+            <h1>🎓 Admin Panel</h1>
+            <ul class="nav-menu">
+                <li><a href="admin-dashboard.html" class="nav-link"><span>📊</span> Dashboard</a></li>
+                <li><a href="liveorders.html" class="nav-link"><span>🔴</span> Live Orders</a></li>
+                <li><a href="orderhistory.html" class="nav-link"><span>📜</span> Order History</a></li>
+                <li><a href="admin-menu.html" class="nav-link"><span>🍽️</span> Menu</a></li>
+                <li><a href="offline-orders.html" class="nav-link active"><span>💵</span> Offline Orders</a></li>
+                <li><a href="admin-students.html" class="nav-link"><span>👥</span> Students</a></li>
+                <li><a href="analysis.html" class="nav-link"><span>📈</span> Analytics</a></li>
+                <li><a href="admin-profile.html" class="nav-link"><span>⚙️</span> Settings</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <h2>💵 Offline Orders (Walk-in / Cash)</h2>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterCategory('all')">All</button>
+                <button class="filter-btn" onclick="filterCategory('Breakfast')">Breakfast</button>
+                <button class="filter-btn" onclick="filterCategory('Lunch')">Lunch</button>
+                <button class="filter-btn" onclick="filterCategory('Snacks')">Snacks</button>
+                <button class="filter-btn" onclick="filterCategory('Beverages')">Beverages</button>
+            </div>
+
+            <div class="menu-grid" id="menuGrid">
+                <p style="text-align: center; padding: 40px;">Loading menu...</p>
+            </div>
+        </main>
+    </div>
+
+    <div class="cart-fixed" onclick="openCart()">
+        🛒 Cart <span class="cart-badge" id="cartCount">0</span>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <h2>📦 Current Order</h2>
+            <div id="cartItems"></div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: 700; color: var(--text-primary);">
+                    <span>Total:</span>
+                    <span id="cartTotal">₹0</span>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="placeOfflineOrder()">Place Order (Cash)</button>
+            <button class="btn-primary" style="background: #64748b; margin-top: 10px;" onclick="closeCart()">Close</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        // Auto-detect environment (local vs Render)
+const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+
+// ✅ Use local backend for local dev, or Render backend for production
+const API_URL = isLocal
+  ? "http://localhost:3000/api"
+  : "https://campus-canteen-final.onrender.com/api";
+
+        let currentAdmin = null;
+        let menuItems = [];
+        let cart = [];
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            currentAdmin = JSON.parse(localStorage.getItem('adminUser'));
+            loadMenu();
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    loadMenu();
+                }
+            }, 3000);
+        });
+
+        async function loadMenu() {
+            try {
+                const response = await fetch(`${API_URL}/menu?adminId=${currentAdmin.id}`);
+                menuItems = await response.json();
+                displayMenu();
+            } catch (error) {
+                showToast('Error loading menu', 'error');
+            }
+        }
+
+        function displayMenu() {
+            const grid = document.getElementById('menuGrid');
+            const filtered = currentFilter === 'all'
+                ? menuItems.filter(item => item.available)
+                : menuItems.filter(item => item.category === currentFilter && item.available);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; padding: 40px;">No items available</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(item => `
+                <div class="menu-card">
+                    <img src="${item.image || 'https://via.placeholder.com/300x200?text=' + encodeURIComponent(item.name)}" alt="${item.name}">
+                    <div class="menu-card-content">
+                        <h3>${item.name}</h3>
+                        <p>${item.description || 'Delicious item'}</p>
+                        <div class="card-footer">
+                            <span class="price">₹${item.price}</span>
+                            <button class="add-btn" onclick='addToCart(${JSON.stringify(item).replace(/'/g, "&apos;")})'>Add</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            displayMenu();
+        }
+
+        function addToCart(item) {
+            const existingItem = cart.find(i => i.id === item.id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            updateCartCount();
+            showToast('Added to cart', 'success');
+        }
+
+        function updateCartCount() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = count;
+        }
+
+        function openCart() {
+            if (cart.length === 0) {
+                showToast('Cart is empty', 'error');
+                return;
+            }
+            displayCart();
+            document.getElementById('cartModal').classList.add('active');
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function displayCart() {
+            const container = document.getElementById('cartItems');
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div>
+                        <strong>${item.name}</strong><br>
+                        <span style="color: var(--text-secondary);">₹${item.price} each</span>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="updateQuantity('${item.id}', -1)">-</button>
+                        <span style="font-weight: 700;">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                        <span style="margin-left: 10px; font-weight: 700; color: #10b981;">₹${item.price * item.quantity}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cartTotal').textContent = '₹' + total;
+        }
+
+        function updateQuantity(itemId, change) {
+            const item = cart.find(i => i.id === itemId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== itemId);
+                }
+                updateCartCount();
+                displayCart();
+            }
+        }
+
+        async function placeOfflineOrder() {
+            if (cart.length === 0) {
+                showToast('Cart is empty', 'error');
+                return;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            const orderData = {
+                userId: currentAdmin.id,
+                adminId: currentAdmin.id,
+                items: cart,
+                totalAmount: total,
+                paymentMethod: 'Cash',
+                orderType: 'instant'
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast(`Order placed! Order ID: ${data.order.orderId} | OTP: ${data.order.otp}`, 'success');
+                    cart = [];
+                    updateCartCount();
+                    closeCart();
+                } else {
+                    showToast('Failed to place order', 'error');
+                }
+            } catch (error) {
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
