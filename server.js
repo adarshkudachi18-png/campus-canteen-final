@@ -34,13 +34,14 @@ const razorpay = new Razorpay({
 });
 
 // Email Configuration
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+const Brevo = require('@getbrevo/brevo');
+const brevo = new Brevo.TransactionalEmailsApi();
+
+brevo.setApiKey(
+  Brevo.TransactionalEmailsApiApiKeys.apiKey,
+  process.env.BREVO_API_KEY
+);
+
 
 // Data Directory
 const DATA_DIR = path.join(__dirname, 'data');
@@ -159,17 +160,20 @@ function generate6DigitOTP() {
 // Send Email Helper
 async function sendEmail(to, subject, html) {
   try {
-    await transporter.sendMail({
-      from: `Campus Canteen <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html
-    });
-    console.log(`✅ Email sent to ${to}`);
+    const sendSmtpEmail = {
+      sender: { name: 'Campus Canteen', email: '00adarsh.kudachi00@gmail.com'},
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html,
+    };
+
+    const response = await brevo.sendTransacEmail(sendSmtpEmail);
+    console.log(`✅ Brevo email sent to ${to}`, response.messageId);
   } catch (error) {
-    console.error('❌ Email error:', error);
+    console.error('❌ Brevo email error:', error.response?.body || error);
   }
 }
+
 
 // ====================
 // HEADQUARTERS ROUTES
